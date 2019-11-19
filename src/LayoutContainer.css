@@ -1,0 +1,43 @@
+.container {
+  display: flex;
+  width: 100%;
+  height: 100%;
+}
+
+.container.row {
+  flex-direction: row;
+}
+
+.container.column {
+  flex-direction: column;
+}
+
+.item {
+  flex-grow: 1;
+
+  /* For testing purpose:; */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 3px;
+  font-size: 2rem;
+  font-family: sans-serif;
+  font-weight: bold;
+  background-color: #1c57b5;
+}
+
+.resizer {
+  background-color: lightblue;
+}
+
+.resizer.row {
+  width: 4px;
+  min-width: 4px;
+  cursor: col-resize;
+}
+
+.resizer.column {
+  height: 4px;
+  min-height: 4px;
+  cursor: row-resize;
+}
