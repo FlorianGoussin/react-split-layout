@@ -28,6 +28,11 @@ export const LayoutContainer = (props) => {
   // remove respectively the resizers with or height from the layout container width or height
   const getResizersSize = layoutItems => (layoutItems.length - 1) * RESIZER_VALUE
   const getContainerSize = resiserSize => ref.current ? (ref.current.offsetWidth - resiserSize) : 0
+  const getDefaultItemSize = (containerSize, sizesPercent) => {
+    const userDefValCount = sizesPercent.filter(s => s).length // count what's not zero
+    const userDefSizesTotal = sizesPercent.reduce((a, b) => a + b)
+    return (containerSize - userDefSizesTotal) / (props.children.length - userDefValCount)
+  }
 
   useEffect(() => {
     const containerSize = getContainerSize(getResizersSize(props.children))
@@ -38,8 +43,9 @@ export const LayoutContainer = (props) => {
                     sizesPercent.reduce((a, b) => a + b) > 100
     if (invalid) throw new Error('LayoutItem size should be less than 100%')
 
-    const itemInitialSizes = sizesPercent.map(userSize => userSize * containerSize / 100)
-    setSizes(itemInitialSizes)
+    const userSizesPixel = sizesPercent.map(size => size * containerSize / 100)
+    const sizesPixel = userSizesPixel.map((size) => size || getDefaultItemSize(containerSize, userSizesPixel))
+    setSizes(sizesPixel)
 
   }, [props.children, propName])
 
@@ -73,7 +79,6 @@ export const LayoutContainer = (props) => {
 
   const getItems = () => {
     const layoutItems = props.children.map((layoutItem, idx) => {
-      console.log(sizes)
       return React.cloneElement(layoutItem, {
         key: getId(),
         size: sizes[idx],
