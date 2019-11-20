@@ -22,8 +22,12 @@ export const LayoutContainer = (props) => {
   const ref = useRef(null)
   const isRow = props.direction === 'row'
   const propName = isRow ? 'width' : 'height'
-  const queryLayoutItemSize = [] // contains all the getSize functions from child
   const [sizes, setSizes] = useState([])
+
+  // contains all the getSize functions from child
+  // use getItemNewSize to call functions
+  const queryLayoutItemSizeFns = []
+  const getItemNewSize = index => queryLayoutItemSizeFns[index]()
 
   // remove respectively the resizers with or height from the layout container width or height
   const getResizersSize = layoutItems => (layoutItems.length - 1) * RESIZER_VALUE
@@ -50,28 +54,43 @@ export const LayoutContainer = (props) => {
   }, [props.children, propName])
 
   // TODO: move all of these to Resizer component
-  const onMouseDownOnResizer = () => {
-    document.removeEventListener('mousemove', onMousemove)
-    document.removeEventListener('mouseup', onMouseup)
-
+  const onMouseDownOnResizer = itemIdx => () => {
     const containerSize = getContainerSize(getResizersSize(props.children))
     const oldContainerSize = sizes.reduce((a, b) => a + b)
-    setSizes(sizes.map(size => size * containerSize / oldContainerSize))
+    setSizes(sizes.map(size => size * containerSize / oldContainerSize)) // will recreate the resizer
+
+    // this will remain after the resizer is destroyed since it's created on the document
+    // so onMousemove and onMouseup need to remain in LayoutContainer component
+    const onMousemove = e => {
+      const getPrevItemNewSize = (e, itemIdx) => e[isRow ? 'clientX' : 'clientY'] - getItemNewSize(itemIdx)
+      console.log(itemIdx)
+      const prevItemSize = sizes[itemIdx]
+      const nextItemSize = sizes[itemIdx + 1]
+      const maxSize = prevItemSize + nextItemSize
+      const prevItemNewSize = getPrevItemNewSize(e, itemIdx)
+      const diff = prevItemSize - prevItemNewSize
+      if (prevItemNewSize > 0 && prevItemNewSize < maxSize) {
+        const newSizes = sizes.slice()
+        newSizes[itemIdx] = prevItemNewSize
+        newSizes[itemIdx + 1] = newSizes[itemIdx + 1] + diff // set the next element width
+        setSizes(newSizes)
+      }
+    }
+
+    const onMouseup = () => {
+      document.removeEventListener('mousemove', onMousemove)
+      document.removeEventListener('mouseup', onMouseup)
+    }
+
+    document.addEventListener('mousemove', onMousemove)
+    document.addEventListener('mouseup', onMouseup)
   }
 
-  const onMousemove = () => {
-
-  }
-
-  const onMouseup = () => {
-    document.removeEventListener('mousemove', onMousemove)
-    document.removeEventListener('mouseup', onMouseup)
-  }
 
   const getResizer = (itemIdx) => {
     return (
       <div className={`resizer ${props.direction}`}
-           onMouseDown={onMouseDownOnResizer}
+           onMouseDown={onMouseDownOnResizer(itemIdx)}
            key={getId()}
       ></div>
     )
@@ -83,11 +102,11 @@ export const LayoutContainer = (props) => {
         key: getId(),
         size: sizes[idx],
         propName,
-        getLayoutItemSize: getSize => { queryLayoutItemSize[idx] = getSize }
+        getLayoutItemSize: getSize => { queryLayoutItemSizeFns[idx] = getSize }
       })
     })
     return layoutItems.slice(1).reduce((arr, layoutItem, idx) =>
-      [...arr, getResizer(idx + 1), layoutItem], [layoutItems[0]]
+      [...arr, getResizer(idx), layoutItem], [layoutItems[0]]
     ) || []
   }
 
