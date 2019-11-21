@@ -8,12 +8,14 @@ import React, { useRef, useEffect, useState } from 'react';
 const getId = () => (Date.now() * Math.random()).toString(36).replace('.', '')
 
 export const LayoutItem = (props) => {
-  const ref = useRef(null)
-  const getSize = () => ref.current ? ref.current.offsetWidth : 0
+  const itemRef = useRef(null)
   const style = { [props.propName]: props.size }
-  props.getLayoutItemSize(getSize)
+  useEffect(() => {
+    const size = itemRef.current ? itemRef.current.getBoundingClientRect()[props.axis] : 0
+    props.addLayoutItemSize(size)
+  })
   return (
-    <div ref={ref} style={style} className="item">{props.children}</div>
+    <div ref={itemRef} style={style} className="item">{props.children}</div>
   )
 }
 
@@ -26,8 +28,8 @@ export const LayoutContainer = (props) => {
 
   // contains all the getSize functions from child
   // use getItemNewSize to call functions
-  const queryLayoutItemSizeFns = []
-  const getItemNewSize = index => queryLayoutItemSizeFns[index]()
+  const recentLayoutItemSizes = []
+  const getItemNewSize = index => recentLayoutItemSizes[index]
 
   // remove respectively the resizers with or height from the layout container width or height
   const getResizersSize = layoutItems => (layoutItems.length - 1) * RESIZER_VALUE
@@ -63,7 +65,6 @@ export const LayoutContainer = (props) => {
     // so onMousemove and onMouseup need to remain in LayoutContainer component
     const onMousemove = e => {
       const getPrevItemNewSize = (e, itemIdx) => e[isRow ? 'clientX' : 'clientY'] - getItemNewSize(itemIdx)
-      console.log(itemIdx)
       const prevItemSize = sizes[itemIdx]
       const nextItemSize = sizes[itemIdx + 1]
       const maxSize = prevItemSize + nextItemSize
@@ -101,8 +102,9 @@ export const LayoutContainer = (props) => {
       return React.cloneElement(layoutItem, {
         key: getId(),
         size: sizes[idx],
+        axis: isRow ? 'x' : 'y',
         propName,
-        getLayoutItemSize: getSize => { queryLayoutItemSizeFns[idx] = getSize }
+        addLayoutItemSize: getSize => { recentLayoutItemSizes[idx] = getSize }
       })
     })
     return layoutItems.slice(1).reduce((arr, layoutItem, idx) =>
