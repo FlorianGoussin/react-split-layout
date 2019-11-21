@@ -33,7 +33,7 @@ export const LayoutContainer = (props) => {
 
   // remove respectively the resizers with or height from the layout container width or height
   const getResizersSize = layoutItems => (layoutItems.length - 1) * RESIZER_VALUE
-  const getContainerSize = resiserSize => ref.current ? (ref.current.offsetWidth - resiserSize) : 0
+  const getContainerSize = resiserSize => ref.current ? (ref.current[isRow ? 'offsetWidth' : 'offsetHeight'] - resiserSize) : 0
   const getDefaultItemSize = (containerSize, sizesPercent) => {
     const userDefValCount = sizesPercent.filter(s => s).length // count what's not zero
     const userDefSizesTotal = sizesPercent.reduce((a, b) => a + b)
@@ -42,6 +42,7 @@ export const LayoutContainer = (props) => {
 
   useEffect(() => {
     const containerSize = getContainerSize(getResizersSize(props.children))
+    // console.log('container:', props.direction, ', containerSize:', ref.current && ref.current.offsetWidth, ' level:', props.level)
     const sizesPercent =
       props.children.map(layoutItem => parseFloat(layoutItem.props[propName] || 0))
 
