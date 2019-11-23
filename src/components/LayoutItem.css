@@ -1,0 +1,13 @@
+.item {
+  flex-grow: 1;
+
+  /* For testing purpose:; */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 3px;
+  font-size: 2rem;
+  font-family: sans-serif;
+  font-weight: bold;
+  background-color: #1c57b5;
+}

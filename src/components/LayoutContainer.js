@@ -7,7 +7,7 @@ import React, { useRef, useEffect, useState } from 'react';
 
 const getId = () => (Date.now() * Math.random()).toString(36).replace('.', '')
 
-export const LayoutItem = (props) => {
+export const LayoutItem = props => {
   const itemRef = useRef(null)
   const style = { [props.propName]: props.size }
   useEffect(() => {
@@ -19,7 +19,15 @@ export const LayoutItem = (props) => {
   )
 }
 
-export const LayoutContainer = (props) => {
+export const LayoutRoot = props => {
+  return (
+    <div className={`layout-root`}>
+      {props.children}
+    </div>
+  )
+}
+
+export const LayoutContainer = props => {
   const RESIZER_VALUE = 4 // pixels
   const ref = useRef(null)
   const isRow = props.direction === 'row'
