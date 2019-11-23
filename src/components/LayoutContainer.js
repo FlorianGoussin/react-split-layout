@@ -7,26 +7,6 @@ import React, { useRef, useEffect, useState } from 'react';
 
 const getId = () => (Date.now() * Math.random()).toString(36).replace('.', '')
 
-export const LayoutItem = props => {
-  const itemRef = useRef(null)
-  const style = { [props.propName]: props.size }
-  useEffect(() => {
-    const size = itemRef.current ? itemRef.current.getBoundingClientRect()[props.axis] : 0
-    props.addLayoutItemSize(size)
-  })
-  return (
-    <div ref={itemRef} style={style} className="item">{props.children}</div>
-  )
-}
-
-export const LayoutRoot = props => {
-  return (
-    <div className={`layout-root`}>
-      {props.children}
-    </div>
-  )
-}
-
 export const LayoutContainer = props => {
   const RESIZER_VALUE = 4 // pixels
   const ref = useRef(null)
@@ -50,7 +30,7 @@ export const LayoutContainer = props => {
 
   useEffect(() => {
     const containerSize = getContainerSize(getResizersSize(props.children))
-    // console.log('container:', props.direction, ', containerSize:', ref.current && ref.current.offsetWidth, ' level:', props.level)
+    console.log('container:', props.direction, ', containerSize:', ref.current && ref.current.offsetWidth, ' level:', props.level)
     const sizesPercent =
       props.children.map(layoutItem => parseFloat(layoutItem.props[propName] || 0))
 
