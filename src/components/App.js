@@ -6,7 +6,7 @@ import { LayoutItem } from './LayoutItem';
 
 const App = () => {
   return (
-    <LayoutRoot>
+    <LayoutRoot state={null}>
       <LayoutContainer direction={'row'} level={1}>
         <LayoutItem>c1</LayoutItem>
         <LayoutItem width="70">
