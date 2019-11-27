@@ -1,3 +1,3 @@
 # React Split Layouts
 
-Just another layout experiment
+In this React layout experiment, we are trying to replicate Golden Layout.
